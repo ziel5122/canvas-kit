@@ -9,7 +9,8 @@ branches:
   except:
   - gh-pages
 stages:
-- name: pr-previews
+- build test
+- name: pr previews
   if: "(branch = master AND type = pull_request) OR branch != master OR NOT branch =~ /^release-.+$/"
 - name: npm publish
   if: branch =~ /^release-.+$/ AND type != pull_request
@@ -21,17 +22,23 @@ before_install:
 - export PATH="$HOME/.yarn/bin:$PATH"
 install:
 - yarn install --production=false
-- yarn lint
-- yarn build
-- yarn test
 jobs:
   include:
+  - stage: build test
+    name: "yarn build && yarn test"
+    script: yarn build && yarn test
+  - script: yarn lint
+    name: "yarn lint"
   - stage: pr previews
+    name: "TODO"
+    install: skip # remove later
     script: echo "TODO"
   - stage: npm publish
+    name: "commit version updates and npm publish"
     script:
     - "./utils/travis/getGit.sh"
   - stage: storybook
+    name: "build and deploy storybook"
     script:
     - yarn build-storybook
     deploy:
